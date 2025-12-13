@@ -13,15 +13,15 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     toast({
       title: "Message sent!",
       description: "We'll get back to you within 24 hours.",
     });
-    
+
     setIsSubmitting(false);
     (e.target as HTMLFormElement).reset();
   };
@@ -70,10 +70,10 @@ export default function Contact() {
                   <div>
                     <h3 className="font-semibold mb-1">Email Us</h3>
                     <a
-                      href="mailto:hello@zyerolead.com"
+                      href="mailto:support@zyerolead.com"
                       className="text-foreground/60 hover:text-primary transition-colors"
                     >
-                      hello@zyerolead.com
+                      support@zyerolead.com
                     </a>
                   </div>
                 </div>
@@ -85,10 +85,10 @@ export default function Contact() {
                   <div>
                     <h3 className="font-semibold mb-1">Call Us</h3>
                     <a
-                      href="tel:+919876543210"
+                      href="tel:+919428623376"
                       className="text-foreground/60 hover:text-primary transition-colors"
                     >
-                      +91 98765 43210
+                      +91 9428623376
                     </a>
                   </div>
                 </div>
@@ -100,7 +100,7 @@ export default function Contact() {
                   <div>
                     <h3 className="font-semibold mb-1">Visit Us</h3>
                     <p className="text-foreground/60">
-                      Mumbai, Maharashtra, India
+                      Vadodara, Gujarat, India
                     </p>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ export default function Contact() {
                   </div>
                   <Button asChild variant="outline" size="sm">
                     <a
-                      href="https://wa.me/919876543210"
+                      href="https://wa.me/919428623376"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -144,7 +144,7 @@ export default function Contact() {
             {/* Contact Form */}
             <div className="glass-card p-8">
               <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
@@ -165,7 +165,7 @@ export default function Contact() {
                     <Input
                       name="email"
                       type="email"
-                      placeholder="your@email.com"
+                      placeholder="zyerolead@gmail.com"
                       required
                       className="h-12"
                     />
@@ -180,7 +180,7 @@ export default function Contact() {
                     <Input
                       name="phone"
                       type="tel"
-                      placeholder="+91 98765 43210"
+                      placeholder="+91 94286 23376"
                       required
                       className="h-12"
                     />
