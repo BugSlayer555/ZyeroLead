@@ -1,11 +1,73 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import heroBg from "@/assets/hero-bg.png";
 
 export function HeroSection() {
   const heroRef = useRef<HTMLDivElement>(null);
+
+  const [todaysCount, setTodaysCount] = useState(47);
+  const [displayedLeads, setDisplayedLeads] = useState([
+    { name: "Rahul Sharma", budget: "₹85L - ₹1.2Cr", type: "3BHK", city: "Mumbai" },
+    { name: "Priya Patel", budget: "₹45L - ₹60L", type: "2BHK", city: "Pune" },
+    { name: "Amit Verma", budget: "₹1.5Cr - ₹2Cr", type: "Villa", city: "Bangalore" },
+  ]);
+
+  // Pool of dummy leads
+  const allLeads = [
+    { name: "Rahul Sharma", budget: "₹85L - ₹1.2Cr", type: "3BHK", city: "Mumbai" },
+    { name: "Priya Patel", budget: "₹45L - ₹60L", type: "2BHK", city: "Pune" },
+    { name: "Amit Verma", budget: "₹1.5Cr - ₹2Cr", type: "Villa", city: "Bangalore" },
+    { name: "Sneha Gupta", budget: "₹65L - ₹80L", type: "2.5BHK", city: "Hyderabad" },
+    { name: "Vikram Singh", budget: "₹2.5Cr+", type: "Penthouse", city: "Delhi" },
+    { name: "Anjali Mehta", budget: "₹55L - ₹70L", type: "2BHK", city: "Ahmedabad" },
+    { name: "Rohan Das", budget: "₹90L - ₹1.1Cr", type: "3BHK", city: "Kolkata" },
+    { name: "Kavita Reddy", budget: "₹1.2Cr - ₹1.5Cr", type: "Villa", city: "Hyderabad" },
+    { name: "Arjun Nair", budget: "₹75L - ₹95L", type: "3BHK", city: "Chennai" },
+    { name: "Neha Kapoor", budget: "₹1.8Cr+", type: "4BHK", city: "Mumbai" },
+    { name: "Suresh Kumar", budget: "₹40L - ₹55L", type: "2BHK", city: "Pune" },
+    { name: "Divya Malhotra", budget: "₹3Cr+", type: "Farmhouse", city: "Delhi NCR" },
+    { name: "Rajesh Iyer", budget: "₹60L - ₹75L", type: "2BHK", city: "Bangalore" },
+    { name: "Meera Joshi", budget: "₹1.1Cr - ₹1.4Cr", type: "3BHK", city: "Pune" },
+    { name: "Vivek Choudhary", budget: "₹80L - ₹1Cr", type: "3BHK", city: "Jaipur" },
+    { name: "Zoya Khan", budget: "₹50L - ₹65L", type: "2BHK", city: "Lucknow" },
+    { name: "Aditya Roy", budget: "₹1.5Cr - ₹1.8Cr", type: "Villa", city: "Chandigarh" },
+    { name: "Tanvi Shah", budget: "₹70L - ₹90L", type: "3BHK", city: "Surat" },
+    { name: "Varun Malhotra", budget: "₹2.2Cr+", type: "4BHK", city: "Gurgaon" },
+    { name: "Ishita Dutta", budget: "₹95L - ₹1.2Cr", type: "3BHK", city: "Noida" }
+  ];
+
+  useEffect(() => {
+    // 1. Set daily stats based on date seed
+    const today = new Date();
+    const dateString = today.toDateString();
+    const seed = dateString.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    // Generate number between 42 and 68 based on seed
+    const dailyCount = 42 + (seed % 27);
+    setTodaysCount(dailyCount);
+
+    // 2. Setup rotation for recent leads (changes every 5 min)
+    // We'll use the current timestamp to determine which batch to show
+    // 5 minutes = 300,000 ms
+
+    const updateLeads = () => {
+      const now = Date.now();
+      const interval = 5 * 60 * 1000; // 5 minutes
+      const startIdx = (Math.floor(now / interval) * 3) % allLeads.length;
+
+      const newLeads = [];
+      for (let i = 0; i < 3; i++) {
+        newLeads.push(allLeads[(startIdx + i) % allLeads.length]);
+      }
+      setDisplayedLeads(newLeads);
+    };
+
+    updateLeads(); // Initial call
+    const timer = setInterval(updateLeads, 60000); // Check every minute if it's time to update (or just rely on the math)
+
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -85,14 +147,8 @@ export function HeroSection() {
             >
               <Button asChild variant="hero" size="xl">
                 <Link to="/book-call">
-                  Book a Free 15-Min Strategy Call
+                  Book a 15-Min Strategy Call
                   <ArrowRight className="w-5 h-5" />
-                </Link>
-              </Button>
-              <Button asChild variant="hero-outline" size="xl">
-                <Link to="/contact">
-                  <Play className="w-5 h-5" />
-                  Get Free Sample Leads
                 </Link>
               </Button>
             </div>
@@ -134,7 +190,7 @@ export function HeroSection() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-muted/50 rounded-xl p-4">
                     <p className="text-sm text-foreground/50">Today's Leads</p>
-                    <p className="text-2xl font-bold">47</p>
+                    <p className="text-2xl font-bold">{todaysCount}</p>
                     <p className="text-xs text-green-600">+12% from yesterday</p>
                   </div>
                   <div className="bg-muted/50 rounded-xl p-4">
@@ -146,11 +202,7 @@ export function HeroSection() {
 
                 <div className="space-y-3">
                   <p className="text-sm font-medium">Recent Leads</p>
-                  {[
-                    { name: "Rahul Sharma", budget: "₹85L - ₹1.2Cr", type: "3BHK", city: "Mumbai" },
-                    { name: "Priya Patel", budget: "₹45L - ₹60L", type: "2BHK", city: "Pune" },
-                    { name: "Amit Verma", budget: "₹1.5Cr - ₹2Cr", type: "Villa", city: "Bangalore" },
-                  ].map((lead, i) => (
+                  {displayedLeads.map((lead, i) => (
                     <div
                       key={i}
                       className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"

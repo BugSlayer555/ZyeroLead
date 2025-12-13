@@ -167,7 +167,7 @@ export default function Services() {
             Ready to Get Started?
           </h2>
           <p className="text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-            Book a free strategy call and let's discuss how we can help you scale.
+            Book a strategy call and let's discuss how we can help you scale.
           </p>
           <Button
             asChild
@@ -175,7 +175,7 @@ export default function Services() {
             className="bg-background text-foreground hover:bg-background/90"
           >
             <Link to="/book-call">
-              Book Your Free Call
+              Book Your Call
               <ArrowRight className="w-5 h-5" />
             </Link>
           </Button>

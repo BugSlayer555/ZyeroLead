@@ -1,6 +1,20 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { CheckCircle, Clock, Users, Shield, Calendar, ArrowRight } from "lucide-react";
+import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
+
+const timeSlots = [
+  "10:00 AM",
+  "11:00 AM",
+  "12:00 PM",
+  "02:00 PM",
+  "03:00 PM",
+  "04:00 PM",
+];
 
 const benefits = [
   "Discuss your specific lead acquisition challenges",
@@ -16,6 +30,28 @@ const trustBadges = [
 ];
 
 export default function BookCall() {
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const handleBooking = () => {
+    if (!date || !selectedTime) {
+      toast({
+        title: "Please select a date and time",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Booking Request Received!",
+      description: `Requested for ${format(date, "MMMM do, yyyy")} at ${selectedTime}. We'll confirm shortly.`,
+    });
+
+    // Reset selection
+    setSelectedTime(null);
+  };
+
   return (
     <Layout>
       {/* Hero */}
@@ -24,7 +60,7 @@ export default function BookCall() {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <span className="text-primary text-sm font-semibold uppercase tracking-wider">
-              Free Strategy Call
+              Strategy Call
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mt-4 mb-6">
               Book Your{" "}
@@ -119,36 +155,80 @@ export default function BookCall() {
               </div>
             </div>
 
-            {/* Right Column - Calendar Placeholder */}
-            <div className="glass-card p-8">
-              <div className="flex items-center gap-3 mb-6">
-                <Calendar className="w-6 h-6 text-primary" />
-                <h2 className="text-xl font-bold">Schedule Your Call</h2>
+            {/* Right Column - Calendar */}
+            <div className="space-y-6 bg-background rounded-2xl p-6 border border-border/50 shadow-sm glass-card">
+              <div className="text-center mb-4">
+                <h3 className="font-semibold text-lg">Select a Date & Time</h3>
+                <p className="text-sm text-foreground/50">
+                  Times are in local timezone
+                </p>
               </div>
 
-              {/* Calendar Placeholder */}
-              <div className="border-2 border-dashed border-border rounded-xl p-12 text-center mb-6">
-                <Calendar className="w-16 h-16 text-primary/30 mx-auto mb-4" />
-                <p className="text-foreground/50 mb-4">
-                  Calendar integration would go here
-                </p>
-                <p className="text-sm text-foreground/40">
-                  (Calendly, Cal.com, or custom booking system)
-                </p>
+              <div className="flex flex-col md:flex-row gap-8 justify-center">
+                <div className="mx-auto">
+                  <CalendarComponent
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    className="rounded-md border shadow-sm p-3"
+                    disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
+                  />
+                </div>
+
+                {date && (
+                  <div className="space-y-3 min-w-[140px]">
+                    <p className="text-sm font-medium text-center md:text-left mb-2">
+                      Available Times
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
+                      {timeSlots.map((time) => (
+                        <Button
+                          key={time}
+                          variant={selectedTime === time ? "default" : "outline"}
+                          size="sm"
+                          className={cn(
+                            "w-full justify-start text-xs",
+                            selectedTime === time && "bg-primary text-primary-foreground"
+                          )}
+                          onClick={() => setSelectedTime(time)}
+                        >
+                          <Clock className="w-3 h-3 mr-2" />
+                          {time}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="pt-4 border-t border-border mt-4">
+                <Button
+                  className="w-full"
+                  size="lg"
+                  disabled={!date || !selectedTime}
+                  onClick={handleBooking}
+                >
+                  Confirm Booking
+                </Button>
+                {date && selectedTime && (
+                  <p className="text-xs text-center text-foreground/50 mt-2">
+                    Booking for {format(date, "MMM do")} at {selectedTime}
+                  </p>
+                )}
               </div>
 
               {/* Manual Booking Option */}
-              <div className="text-center space-y-4">
+              <div className="text-center space-y-4 pt-4 border-t border-border">
                 <p className="text-sm text-foreground/60">
                   Prefer to book manually?
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <Button asChild variant="hero" size="lg">
+                  <Button asChild variant="ghost" size="sm">
                     <a href="tel:+919876543210">
                       Call Us Directly
                     </a>
                   </Button>
-                  <Button asChild variant="outline" size="lg">
+                  <Button asChild variant="ghost" size="sm">
                     <a
                       href="https://wa.me/919876543210"
                       target="_blank"

@@ -70,10 +70,10 @@ export default function Contact() {
                   <div>
                     <h3 className="font-semibold mb-1">Email Us</h3>
                     <a
-                      href="mailto:support@zyerolead.com"
+                      href="mailto:zyerolead@gmail.com"
                       className="text-foreground/60 hover:text-primary transition-colors"
                     >
-                      support@zyerolead.com
+                      zyerolead@gmail.com
                     </a>
                   </div>
                 </div>

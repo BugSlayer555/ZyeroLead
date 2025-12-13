@@ -6,7 +6,7 @@ export function CTASection() {
   return (
     <section className="py-24 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80" />
-      
+
       {/* Abstract Shapes */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-background/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-64 h-64 bg-background/10 rounded-full blur-3xl" />
@@ -18,7 +18,7 @@ export function CTASection() {
           Ready to Scale Your Real Estate Business?
         </h2>
         <p className="text-xl text-primary-foreground/80 mb-10 max-w-2xl mx-auto">
-          Book a free 15-minute strategy call and discover how Zyero Lead can
+          Book a 15-minute strategy call and discover how Zyero Lead can
           transform your buyer acquisition.
         </p>
 
@@ -30,18 +30,7 @@ export function CTASection() {
           >
             <Link to="/book-call">
               <Phone className="w-5 h-5" />
-              Book a Free Strategy Call
-            </Link>
-          </Button>
-          <Button
-            asChild
-            size="xl"
-            variant="ghost"
-            className="text-primary-foreground border-2 border-primary-foreground/30 hover:bg-primary-foreground/10"
-          >
-            <Link to="/contact">
-              Get Free Sample Leads
-              <ArrowRight className="w-5 h-5" />
+              Book a Strategy Call
             </Link>
           </Button>
         </div>
