@@ -29,7 +29,7 @@ const blogPosts = [
     slug: "real-estate-ad-strategies-indian-builders",
     title: "Best Real Estate Ad Strategies for Indian Builders",
     excerpt:
-      "From Facebook to Google to Instagram — discover the most effective advertising strategies that top Indian builders use to generate consistent buyer leads.",
+      "From Facebook to Google to Instagram discover the most effective advertising strategies that top Indian builders use to generate consistent buyer leads.",
     image: "ads",
     category: "Marketing",
     author: "Priya",

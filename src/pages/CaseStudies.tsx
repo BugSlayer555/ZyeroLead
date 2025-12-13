@@ -94,10 +94,10 @@ export default function CaseStudies() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             {[
-              { icon: Users, metric: "500+", label: "Clients Served" },
-              { icon: TrendingUp, metric: "50K+", label: "Leads Delivered" },
+              { icon: Users, metric: "50+", label: "Clients Served" },
+              { icon: TrendingUp, metric: "20K+", label: "Leads Delivered" },
               { icon: IndianRupee, metric: "94%", label: "Verification Rate" },
-              { icon: Calendar, metric: "48hrs", label: "Avg. First Lead" },
+              { icon: Calendar, metric: "72hrs", label: "Avg. First Lead" },
             ].map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -118,9 +118,8 @@ export default function CaseStudies() {
             {caseStudies.map((study, index) => (
               <div
                 key={study.title}
-                className={`grid lg:grid-cols-2 gap-12 items-center ${
-                  index % 2 === 1 ? "lg:flex-row-reverse" : ""
-                }`}
+                className={`grid lg:grid-cols-2 gap-12 items-center ${index % 2 === 1 ? "lg:flex-row-reverse" : ""
+                  }`}
               >
                 <div className={index % 2 === 1 ? "lg:order-2" : ""}>
                   <span className="text-primary text-sm font-semibold uppercase tracking-wider">
@@ -129,7 +128,7 @@ export default function CaseStudies() {
                   <h2 className="text-2xl md:text-3xl font-black mt-2 mb-4">
                     {study.title}
                   </h2>
-                  
+
                   <div className="space-y-4 mb-8">
                     <div>
                       <h4 className="font-semibold mb-1">Challenge</h4>

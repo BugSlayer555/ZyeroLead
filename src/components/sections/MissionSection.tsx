@@ -63,7 +63,7 @@ export function MissionSection() {
                 spending lakhs on marketing but getting nowhere.
               </p>
               <p className="text-background/60 leading-relaxed mt-4">
-                Zyero Lead was born to solve this problem — to create a system
+                Zyero Lead was born to solve this problem to create a system
                 that delivers only verified, high-intent buyer leads that
                 actually convert.
               </p>

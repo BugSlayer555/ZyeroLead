@@ -6,11 +6,11 @@ const benefits = [
   "Discuss your specific lead acquisition challenges",
   "Get a custom strategy tailored to your projects",
   "See real examples from similar clients",
-  "No commitment required — just actionable insights",
+  "No commitment required just actionable insights",
 ];
 
 const trustBadges = [
-  { icon: Users, label: "500+ Clients Served" },
+  { icon: Users, label: "50+ Clients Served" },
   { icon: Shield, label: "94% Verification Rate" },
   { icon: Clock, label: "48hr Lead Delivery" },
 ];
@@ -32,7 +32,7 @@ export default function BookCall() {
             </h1>
             <p className="text-xl text-foreground/60 max-w-2xl mx-auto">
               Get a personalized strategy session with our team. No pitch, no
-              pressure — just actionable insights for your business.
+              pressure just actionable insights for your business.
             </p>
           </div>
         </div>

@@ -4,10 +4,10 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Target, Eye, Users, Award, TrendingUp, CheckCircle } from "lucide-react";
 
 const timeline = [
-  { year: "2021", title: "Founded", description: "Zyero Lead was born from a vision to fix real estate lead generation." },
-  { year: "2022", title: "100 Clients", description: "Reached our first 100 clients across Mumbai and Pune." },
-  { year: "2023", title: "50K+ Leads", description: "Crossed 50,000 verified leads delivered with 94% verification rate." },
-  { year: "2024", title: "Pan-India", description: "Expanded operations to 8 major cities across India." },
+  { year: "2025", title: "Founded", description: "Zyero Lead was born from a vision to fix real estate lead generation." },
+  { year: "2025", title: "100 Clients", description: "Reached our first 100 clients across Mumbai and Pune." },
+  { year: "2025", title: "20K+ Leads", description: "Crossed 20,000 verified leads delivered with 94% verification rate." },
+  { year: "2025", title: "Pan-India", description: "Expanded operations to 8 major cities across India." },
 ];
 
 const values = [
@@ -34,7 +34,7 @@ export default function About() {
             </h1>
             <p className="text-xl text-foreground/60 max-w-2xl mx-auto">
               We're on a mission to transform how real estate businesses
-              acquire verified buyer leads — predictably and profitably.
+              acquire verified buyer leads predictably and profitably.
             </p>
           </div>
         </div>
@@ -49,16 +49,16 @@ export default function About() {
                 Why We Started Zyero Lead
               </h2>
               <p className="text-foreground/70 leading-relaxed">
-                In 2021, our founder Tej witnessed a painful truth in the real estate
-                industry: developers were spending crores on marketing but receiving
-                leads that were either fake, unqualified, or simply not interested.
+                In 2025, Tej started this agency to help real estate developers and agents get better results from their marketing. Not more leads better ones.
+                Most businesses were already running ads, but the enquiries coming in were inconsistent, unfiltered, and difficult to convert. Sales teams spent time chasing calls that went nowhere, and marketing spend rarely matched actual outcomes.
+                This agency was built to simplify that process. We focus on practical targeting, basic verification, and lead handling that prioritizes intent over volume so our clients speak to people who are actually considering a purchase.
               </p>
               <p className="text-foreground/70 leading-relaxed">
                 Sales teams wasted countless hours chasing dead ends. Marketing budgets
                 evaporated without predictable ROI. The industry needed a better way.
               </p>
               <p className="text-foreground/70 leading-relaxed">
-                That's when Zyero Lead was born — with a singular focus on delivering
+                That's when Zyero Lead was born with a singular focus on delivering
                 only verified, high-intent buyer leads that actually convert into
                 site visits and sales.
               </p>
@@ -85,15 +85,15 @@ export default function About() {
               <p className="text-foreground/70 leading-relaxed mb-6">
                 "I've spent years in digital marketing for real estate. I've seen
                 the waste, the frustration, and the broken promises. Zyero Lead
-                is my answer to fixing this — one verified lead at a time."
+                is my answer to fixing this one verified lead at a time."
               </p>
               <div className="flex gap-6">
                 <div>
-                  <p className="text-2xl font-bold text-primary">10+</p>
-                  <p className="text-sm text-foreground/50">Years Experience</p>
+                  <p className="text-2xl font-bold text-primary">20k+</p>
+                  <p className="text-sm text-foreground/50">Leads Delivered</p>
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-primary">500+</p>
+                  <p className="text-2xl font-bold text-primary">50+</p>
                   <p className="text-sm text-foreground/50">Clients Served</p>
                 </div>
               </div>
@@ -114,7 +114,7 @@ export default function About() {
               <p className="text-foreground/70 leading-relaxed">
                 To help builders, developers, and realtors scale their businesses
                 using predictable, verified buyer acquisition systems that work
-                24/7 — eliminating wasted ad spend and unqualified leads forever.
+                24/7 eliminating wasted ad spend and unqualified leads forever.
               </p>
             </div>
 
@@ -170,13 +170,12 @@ export default function About() {
           <div className="max-w-4xl mx-auto">
             <div className="relative">
               <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-primary/30 -translate-x-1/2" />
-              
+
               {timeline.map((item, index) => (
                 <div
                   key={item.year}
-                  className={`relative flex items-center gap-8 mb-12 last:mb-0 ${
-                    index % 2 === 0 ? "flex-row" : "flex-row-reverse"
-                  }`}
+                  className={`relative flex items-center gap-8 mb-12 last:mb-0 ${index % 2 === 0 ? "flex-row" : "flex-row-reverse"
+                    }`}
                 >
                   <div className={`flex-1 ${index % 2 === 0 ? "text-right" : "text-left"}`}>
                     <div className="glass-card-dark p-6">
@@ -185,9 +184,9 @@ export default function About() {
                       <p className="text-background/60 mt-2">{item.description}</p>
                     </div>
                   </div>
-                  
+
                   <div className="w-4 h-4 bg-primary rounded-full relative z-10 shrink-0" />
-                  
+
                   <div className="flex-1" />
                 </div>
               ))}
@@ -200,10 +199,10 @@ export default function About() {
       <section className="py-24 bg-primary">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl md:text-4xl font-black text-primary-foreground mb-6">
-            Ready to Join 500+ Successful Clients?
+            Ready to Join 50+ Successful Clients?
           </h2>
           <p className="text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-            Start receiving verified buyer leads within 48 hours.
+            Start receiving verified buyer leads within 72 hours.
           </p>
           <Button
             asChild

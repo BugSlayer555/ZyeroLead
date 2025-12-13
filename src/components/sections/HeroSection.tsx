@@ -31,7 +31,7 @@ export function HeroSection() {
       className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20"
     >
       {/* Background Image */}
-      <div 
+      <div
         className="absolute inset-0 opacity-30"
         style={{
           backgroundImage: `url(${heroBg})`,
@@ -42,7 +42,7 @@ export function HeroSection() {
       <div className="absolute inset-0 section-gradient" />
       <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/10 rounded-full blur-3xl" />
-      
+
       {/* Geometric Shapes */}
       <div className="absolute top-1/4 left-10 w-20 h-20 border-2 border-primary/20 rounded-2xl rotate-12 hidden lg:block" />
       <div className="absolute bottom-1/4 right-20 w-16 h-16 bg-primary/10 rounded-full hidden lg:block" />
@@ -66,7 +66,7 @@ export function HeroSection() {
               className="animate-on-scroll opacity-0 text-4xl md:text-5xl lg:text-6xl font-black leading-[1.1] tracking-tight"
               style={{ animationDelay: "0.2s" }}
             >
-              We Acquire Verified Real Estate Buyer Leads —{" "}
+              We Acquire Verified Real Estate Buyer Leads{" "}
               <span className="text-gradient">Daily.</span>
             </h1>
 
@@ -103,11 +103,11 @@ export function HeroSection() {
               style={{ animationDelay: "0.5s" }}
             >
               <div>
-                <p className="text-3xl font-black text-primary">500+</p>
+                <p className="text-3xl font-black text-primary">50+</p>
                 <p className="text-sm text-foreground/50">Clients Served</p>
               </div>
               <div>
-                <p className="text-3xl font-black text-primary">50K+</p>
+                <p className="text-3xl font-black text-primary">20K+</p>
                 <p className="text-sm text-foreground/50">Leads Delivered</p>
               </div>
               <div>
@@ -130,7 +130,7 @@ export function HeroSection() {
                     Live
                   </span>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-muted/50 rounded-xl p-4">
                     <p className="text-sm text-foreground/50">Today's Leads</p>

@@ -44,7 +44,7 @@ const faqs = [
   {
     question: "Can I pause or cancel my subscription?",
     answer:
-      "Yes, you can pause your subscription at any time for up to 30 days. Cancellations require 7 days notice before your next billing cycle. There are no long-term contracts — we earn your business every month.",
+      "Yes, you can pause your subscription at any time for up to 30 days. Cancellations require 7 days notice before your next billing cycle. There are no long-term contracts we earn your business every month.",
   },
 ];
 

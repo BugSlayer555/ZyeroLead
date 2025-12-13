@@ -88,7 +88,7 @@ export default function Services() {
               <span className="text-gradient">Lead Acquisition</span>
             </h1>
             <p className="text-xl text-foreground/60 max-w-2xl mx-auto">
-              From targeting to verification to appointment booking — we handle
+              From targeting to verification to appointment booking we handle
               every step of your buyer acquisition journey.
             </p>
           </div>

@@ -5,7 +5,6 @@ const quickLinks = [
   { name: "About Us", href: "/about" },
   { name: "Services", href: "/services" },
   { name: "Case Studies", href: "/case-studies" },
-  { name: "Pricing", href: "/pricing" },
   { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact" },
 ];
@@ -41,7 +40,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-background/60 text-sm leading-relaxed">
-              India's leading Real Estate Buyer Lead Acquisition Specialist. 
+              India's leading Real Estate Buyer Lead Acquisition Specialist.
               We help builders, developers & realtors scale with verified buyer leads.
             </p>
             <div className="flex gap-3">
@@ -94,25 +93,25 @@ export function Footer() {
               <li className="flex items-start gap-3">
                 <Mail className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <a
-                  href="mailto:hello@zyerolead.com"
+                  href="mailto:support@zyerolead.com"
                   className="text-background/60 hover:text-primary transition-colors text-sm"
                 >
-                  hello@zyerolead.com
+                  support@zyerolead.com
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <a
-                  href="tel:+919876543210"
+                  href="tel:+919428623376"
                   className="text-background/60 hover:text-primary transition-colors text-sm"
                 >
-                  +91 98765 43210
+                  +91 9428623376
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <span className="text-background/60 text-sm">
-                  Mumbai, Maharashtra, India
+                  Vadodara, Gujarat, India
                 </span>
               </li>
             </ul>
