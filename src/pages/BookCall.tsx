@@ -2,7 +2,16 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import { CheckCircle, Clock, Users, Shield, Calendar, ArrowRight } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { CheckCircle, Clock, Users, Shield, Calendar, ArrowRight, Loader2, Mail, Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -32,9 +41,24 @@ const trustBadges = [
 export default function BookCall() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
 
-  const handleBooking = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleBookingClick = () => {
     if (!date || !selectedTime) {
       toast({
         title: "Please select a date and time",
@@ -42,15 +66,97 @@ export default function BookCall() {
       });
       return;
     }
+    setIsDialogOpen(true);
+  };
 
-    toast({
-      title: "Booking Request Received!",
-      description: `Requested for ${format(date, "MMMM do, yyyy")} at ${selectedTime}. We'll confirm shortly.`,
+  const generateGoogleCalendarLink = () => {
+    if (!date || !selectedTime) return "";
+
+    // Parse selectedTime to get hours and minutes
+    const [time, period] = selectedTime.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
+    if (period === "PM" && hours !== 12) hours += 12;
+    if (period === "AM" && hours === 12) hours = 0;
+
+    const startDate = new Date(date);
+    startDate.setHours(hours, minutes, 0);
+    const endDate = new Date(startDate.getTime() + 15 * 60000); // 15 mins later
+
+    const formatGCalDate = (d: Date) => d.toISOString().replace(/-|:|\.\d\d\d/g, "");
+
+    const params = new URLSearchParams({
+      action: "TEMPLATE",
+      text: `Strategy Call: ${formData.name} <> ZyeroLead`,
+      dates: `${formatGCalDate(startDate)}/${formatGCalDate(endDate)}`,
+      details: `Client Details:\nName: ${formData.name}\nPhone: ${formData.phone}\nEmail: ${formData.email}\nCompany: ${formData.company}\n\nMeeting to discuss lead acquisition.`,
+      location: "Phone/Online",
+      // IMPORTANT: This invites the owner. 
+      // The owner must be added as a guest for it to appear in their calendar.
+      add: "zyerolead@gmail.com",
     });
 
-    // Reset selection
-    setSelectedTime(null);
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
   };
+
+  const generateMailtoLink = () => {
+    const subject = `Booking Request: ${formData.name} for ${date ? format(date, "MMM do") : ""} at ${selectedTime}`;
+    const body = `Hi ZyeroLead Team,\n\nI would like to book a strategy call.\n\nDetails:\nName: ${formData.name}\nPhone: ${formData.phone}\nCompany: ${formData.company}\n\nRequested Time: ${date ? format(date, "MMM do, yyyy") : ""} at ${selectedTime}`;
+    return `mailto:zyerolead@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  };
+
+  // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzb9AGxRcdOg2DOIqUQOt2e4i46EcALFh7b4RBDeofgwuMYvQhN4Ce4YOCIHtzvAq6q/exec";
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // 1. Format the data for the backend
+      const payload = {
+        ...formData,
+        date: date ? format(date, "yyyy-MM-dd") : "",
+        time: selectedTime,
+        created_at: new Date().toISOString()
+      };
+
+      // 2. Send to Google Apps Script
+      // mode: 'no-cors' is CRITICAL for sending data to Google Scripts from the client side
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // 3. Handle Success (Since no-cors returns opaque response, we assume success if no error thrown)
+      setIsSubmitting(false);
+      setIsSuccess(true);
+
+      toast({
+        title: "Booking Confirmed!",
+        description: "We have added it to our calendar. See you then!",
+      });
+
+    } catch (error) {
+      console.error("Booking caught error:", error);
+      setIsSubmitting(false);
+      toast({
+        title: "Submission Error",
+        description: "Please try again or contact us directly.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClose = () => {
+    setIsDialogOpen(false);
+    setIsSuccess(false);
+    setFormData({ name: "", email: "", phone: "", company: "" });
+    setSelectedTime(null);
+  }
 
   return (
     <Layout>
@@ -143,13 +249,13 @@ export default function BookCall() {
                     <span className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold shrink-0">
                       2
                     </span>
-                    Receive a confirmation email with call details
+                    Provide your details and business context
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold shrink-0">
                       3
                     </span>
-                    Join the call and get your custom strategy
+                    We'll send you a calendar invitation
                   </li>
                 </ol>
               </div>
@@ -206,13 +312,13 @@ export default function BookCall() {
                   className="w-full"
                   size="lg"
                   disabled={!date || !selectedTime}
-                  onClick={handleBooking}
+                  onClick={handleBookingClick}
                 >
-                  Confirm Booking
+                  Proceed to Book
                 </Button>
                 {date && selectedTime && (
                   <p className="text-xs text-center text-foreground/50 mt-2">
-                    Booking for {format(date, "MMM do")} at {selectedTime}
+                    Selected: {format(date, "MMM do")} at {selectedTime}
                   </p>
                 )}
               </div>
@@ -224,13 +330,13 @@ export default function BookCall() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button asChild variant="ghost" size="sm">
-                    <a href="tel:+919876543210">
+                    <a href="tel:+919428623376">
                       Call Us Directly
                     </a>
                   </Button>
                   <Button asChild variant="ghost" size="sm">
                     <a
-                      href="https://wa.me/919876543210"
+                      href="https://wa.me/919428623376"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -243,6 +349,107 @@ export default function BookCall() {
           </div>
         </div>
       </section>
+
+      {/* Booking Form Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={(open) => !isSuccess && setIsDialogOpen(open)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>
+              {isSuccess ? "Booking Confirmed!" : "Finalize Your Booking"}
+            </DialogTitle>
+            <DialogDescription>
+              {isSuccess
+                ? "You're all set. We have sent a calendar invitation to your email address."
+                : (
+                  <>
+                    Please provide your details so we can confirm your slot for{" "}
+                    {date && selectedTime && (
+                      <span className="font-semibold text-primary">
+                        {format(date, "MMM do")} at {selectedTime}
+                      </span>
+                    )}
+                  </>
+                )
+              }
+            </DialogDescription>
+          </DialogHeader>
+
+          {!isSuccess ? (
+            <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name *</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  required
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="John Doe"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number *</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  required
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email Address *</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  required
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  placeholder="john@company.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="company">Company Name</Label>
+                <Input
+                  id="company"
+                  name="company"
+                  value={formData.company}
+                  onChange={handleInputChange}
+                  placeholder="Real Estate Corp"
+                />
+              </div>
+
+              <div className="pt-4">
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Confirming...
+                    </>
+                  ) : (
+                    "Confirm Booking"
+                  )}
+                </Button>
+              </div>
+            </form>
+          ) : (
+            <div className="text-center py-6 space-y-4">
+              <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8" />
+              </div>
+              <p className="text-foreground/70">
+                A confirmation email has been sent to <strong>{formData.email}</strong>.
+              </p>
+              <Button onClick={handleClose} className="w-full mt-2">
+                Close
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* FAQ Mini */}
       <section className="py-24 bg-muted/30">
