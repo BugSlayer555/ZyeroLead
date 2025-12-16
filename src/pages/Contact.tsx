@@ -3,27 +3,84 @@ import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Phone, MapPin, Send } from "lucide-react";
+import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Contact() {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    city: "",
+    message: ""
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleWhatsApp = () => {
+    const { name, email, phone, company, city, message } = formData;
+    if (!name || !message) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in at least your Name and Message to send via WhatsApp.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const text = `*New Contact Request*\n\n*Name:* ${name}\n*Email:* ${email}\n*Phone:* ${phone}\n*Company:* ${company}\n*City:* ${city}\n*Message:* ${message}`;
+    const encodedText = encodeURIComponent(text);
+    window.open(`https://wa.me/919428623376?text=${encodedText}`, '_blank');
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const response = await fetch("https://formspree.io/f/xblnvjyj", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
 
-    toast({
-      title: "Message sent!",
-      description: "We'll get back to you within 24 hours.",
-    });
-
-    setIsSubmitting(false);
-    (e.target as HTMLFormElement).reset();
+      if (response.ok) {
+        toast({
+          title: "Message sent!",
+          description: "We've received your message and will get back to you shortly.",
+        });
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          company: "",
+          city: "",
+          message: ""
+        });
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Formspree error:", response.status, errorData);
+        throw new Error("Failed to send message");
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      toast({
+        title: "Error sending message",
+        description: "Please try again or contact us via WhatsApp.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -160,6 +217,8 @@ export default function Contact() {
                     </label>
                     <Input
                       name="name"
+                      value={formData.name}
+                      onChange={handleChange}
                       placeholder="Your name"
                       required
                       className="h-12"
@@ -172,6 +231,8 @@ export default function Contact() {
                     <Input
                       name="email"
                       type="email"
+                      value={formData.email}
+                      onChange={handleChange}
                       placeholder="xyz@gmail.com"
                       required
                       className="h-12"
@@ -187,6 +248,8 @@ export default function Contact() {
                     <Input
                       name="phone"
                       type="tel"
+                      value={formData.phone}
+                      onChange={handleChange}
                       placeholder="+91 12345 67890"
                       required
                       className="h-12"
@@ -198,6 +261,8 @@ export default function Contact() {
                     </label>
                     <Input
                       name="company"
+                      value={formData.company}
+                      onChange={handleChange}
                       placeholder="Your company"
                       className="h-12"
                     />
@@ -210,6 +275,8 @@ export default function Contact() {
                   </label>
                   <Input
                     name="city"
+                    value={formData.city}
+                    onChange={handleChange}
                     placeholder="Your city"
                     className="h-12"
                   />
@@ -221,6 +288,8 @@ export default function Contact() {
                   </label>
                   <Textarea
                     name="message"
+                    value={formData.message}
+                    onChange={handleChange}
                     placeholder="Tell us about your requirements..."
                     required
                     rows={5}
@@ -228,22 +297,39 @@ export default function Contact() {
                   />
                 </div>
 
-                <Button
-                  type="submit"
-                  variant="hero"
-                  size="lg"
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    "Sending..."
-                  ) : (
-                    <>
-                      Send Message
-                      <Send className="w-5 h-5" />
-                    </>
-                  )}
-                </Button>
+                <div className="flex flex-col gap-3">
+                  <Button
+                    type="submit"
+                    variant="hero"
+                    size="lg"
+                    className="w-full"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      "Sending..."
+                    ) : (
+                      <>
+                        Send Message
+                        <Send className="w-5 h-5 ml-2" />
+                      </>
+                    )}
+                  </Button>
+
+                  <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+                    <span className="relative z-10 bg-background px-2 text-muted-foreground">Or</span>
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="lg"
+                    className="w-full border-green-500/50 hover:bg-green-500/10 hover:text-green-600 text-green-600"
+                    onClick={handleWhatsApp}
+                  >
+                    Send via WhatsApp
+                    <MessageCircle className="w-5 h-5 ml-2" />
+                  </Button>
+                </div>
               </form>
             </div>
           </div>
@@ -252,3 +338,4 @@ export default function Contact() {
     </Layout>
   );
 }
+
