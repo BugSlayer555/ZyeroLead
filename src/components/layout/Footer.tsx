@@ -7,6 +7,7 @@ const quickLinks = [
   { name: "Case Studies", href: "/case-studies" },
   { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact" },
+  { name: "Book Strategy Call", href: "/calendar-call" },
 ];
 
 const services = [
