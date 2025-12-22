@@ -146,7 +146,7 @@ export function HeroSection() {
               style={{ animationDelay: "0.4s" }}
             >
               <Button asChild variant="hero" size="xl">
-                <Link to="/book-call">
+                <Link to="/calendar-call">
                   Book a 15-Min Strategy Call
                   <ArrowRight className="w-5 h-5" />
                 </Link>

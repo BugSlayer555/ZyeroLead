@@ -28,7 +28,7 @@ export function CTASection() {
             size="xl"
             className="bg-background text-foreground hover:bg-background/90 btn-neumorphic"
           >
-            <Link to="/book-call">
+            <Link to="/calendar-call">
               <Phone className="w-5 h-5" />
               Book a Strategy Call
             </Link>

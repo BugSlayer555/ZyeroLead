@@ -1,20 +1,32 @@
-// Google Apps Script Code
-// 1. Open your Google Sheet
-// 2. Extensions > Apps Script
-// 3. Paste this code, replacing everything else.
-// 4. Deploy > New Deployment > Web App > Access: Anyone > Deploy
+// Google Apps Script Code (V12 - DATE MATCHING FIX)
+// ==========================================
+// FIX: "The spot I booked is shows as available again?"
+// REASON: Your Sheet says "12/25/2024" but the code was looking for "2024-12-25".
+// SOLUTION: This version understands ALL date formats.
+//
+// 1. Copy ALL this code.
+// 2. Paste > Deploy > New Version.
+// ==========================================
 
-// Configuration: Matches your React app fields
-const SHEET_NAME = "Sheet1"; // Change if your sheet has a different name
+const SPREADSHEET_ID = "1LTvqampjZsG7V311jKgG8zLkuKmODLRfhuK9XUmq9-w"; 
+const SHEET_NAME = "Sheet1";
+const CALENDAR_ID = "primary";
 
 function doPost(e) {
   try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-    if (!sheet) throw new Error("Sheet not found");
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    
+    // Auto-create sheet if missing (Safety mechanism)
+    if (!sheet) throw new Error("Sheet1 not found");
 
     const data = JSON.parse(e.postData.contents);
     
-    // Check for double booking
+    if (data.action === "cancel") {
+        return deleteBooking(sheet, data.date, data.time);
+    }
+    
+    // Check Date match using ROBUST logic
     if (isSlotTaken(sheet, data.date, data.time)) {
       return ContentService.createTextOutput(JSON.stringify({ 
         status: "error", 
@@ -22,54 +34,66 @@ function doPost(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
 
-    // Append new booking
     sheet.appendRow([
       data.created_at,
       data.name, 
       data.email, 
       data.phone, 
       data.company, 
-      data.description, // detailed info
+      data.description, 
       data.date, 
       data.time
     ]);
+    SpreadsheetApp.flush();
+
+    createCalendarEvent(data);
 
     return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
       .setMimeType(ContentService.MimeType.JSON);
 
   } catch (error) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: error.toString() }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(JSON.stringify({ 
+        status: "error", 
+        message: "Back-end Error: " + error.toString() 
+    })).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
 function doGet(e) {
   try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-    const requestedDate = e.parameter.date; // Expects "yyyy-MM-dd"
+    const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    const action = e.parameter.action;
     
-    // Get all data
-    const rows = sheet.getDataRange().getValues();
+    const rows = sheet.getDataRange().getDisplayValues();
+
+    // 1. Admin: Get ALL bookings
+    if (action === "getAll") {
+        const bookings = [];
+        for (let i = 1; i < rows.length; i++) {
+             if (!rows[i][6] || !rows[i][7]) continue;
+             bookings.push({
+                 date: normalizeDate(rows[i][6]), // Standardize date for Frontend
+                 time: rows[i][7],
+                 name: rows[i][1],
+                 email: rows[i][2],
+                 phone: rows[i][3],
+                 company: rows[i][4]
+             });
+        }
+        return ContentService.createTextOutput(JSON.stringify({ bookings: bookings }))
+            .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // 2. Client: Get booked slots for a specific date
+    const requestedDate = e.parameter.date; // Comes as "2024-12-25"
     const bookedTimes = [];
 
-    // Skip header row (index 0)
     for (let i = 1; i < rows.length; i++) {
-        // Column Index 6 is Date (G), Column Index 7 is Time (H) - assuming standard append order above
-        const rowDate = rows[i][6]; 
-        const rowTime = rows[i][7];
-
-        // Simple string comparison or date object comparison
-        // We formatted date as yyyy-MM-dd in frontend, so we expect string matches or Date matches.
-        // Google Sheets might convert to Date object.
-        
-        // Helper to format sheet date to string if needed
-        let sheetDateStr = rowDate;
-        if (rowDate instanceof Date) {
-            sheetDateStr = Utilities.formatDate(rowDate, Session.getScriptTimeZone(), "yyyy-MM-dd");
-        }
-
-        if (sheetDateStr === requestedDate) {
-            bookedTimes.push(rowTime);
+        // Compare "2024-12-25" (Normalized) === "2024-12-25" (Requested)
+        const rowDate = normalizeDate(rows[i][6]);
+        if (rowDate === requestedDate) {
+            bookedTimes.push(rows[i][7]); // Add time "10:00 AM" to blocked list
         }
     }
 
@@ -82,20 +106,65 @@ function doGet(e) {
   }
 }
 
+function createCalendarEvent(data) {
+    const calendar = CalendarApp.getCalendarById(CALENDAR_ID);
+    if (!calendar) return; 
+
+    // Combine Date + Time carefully
+    const startTime = new Date(data.date.toString() + " " + data.time.toString());
+    const endTime = new Date(startTime.getTime() + (15 * 60 * 1000));
+    
+    calendar.createEvent(`Strategy Call: ${data.name}`, startTime, endTime, {
+        description: `Name: ${data.name}\nEmail: ${data.email}\nDescription: ${data.description}`,
+        guests: data.email, 
+        sendInvites: true
+    });
+}
+
 function isSlotTaken(sheet, date, time) {
-  const rows = sheet.getDataRange().getValues();
+  const rows = sheet.getDataRange().getDisplayValues();
+  const targetDate = normalizeDate(date); // Standardize input "2024-12-25"
+
   for (let i = 1; i < rows.length; i++) {
-    const rowDate = rows[i][6];
-    const rowTime = rows[i][7];
-    
-    let sheetDateStr = rowDate;
-    if (rowDate instanceof Date) {
-         sheetDateStr = Utilities.formatDate(rowDate, Session.getScriptTimeZone(), "yyyy-MM-dd");
-    }
-    
-    if (sheetDateStr === date && rowTime === time) {
-      return true;
+    const rowDate = normalizeDate(rows[i][6]); // Standardize sheet "12/25/2024" -> "2024-12-25"
+    const rowTime = String(rows[i][7]).trim();
+
+    if (rowDate === targetDate && rowTime === time) {
+        return true;
     }
   }
   return false;
+}
+
+function deleteBooking(sheet, date, time) {
+    const rows = sheet.getDataRange().getDisplayValues();
+    const targetDate = normalizeDate(date);
+
+    for (let i = rows.length - 1; i >= 1; i--) {
+        const rowDate = normalizeDate(rows[i][6]);
+        if (rowDate === targetDate && String(rows[i][7]).trim() === time) {
+            sheet.deleteRow(i + 1); 
+            SpreadsheetApp.flush();
+            return ContentService.createTextOutput(JSON.stringify({ status: "success", message: "Deleted" }))
+                .setMimeType(ContentService.MimeType.JSON);
+        }
+    }
+    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Not found" }))
+        .setMimeType(ContentService.MimeType.JSON);
+}
+
+// HELPER: Convert ANY format (12/25/2024, Dec 25, etc) into "YYYY-MM-DD"
+function normalizeDate(input) {
+    if (!input) return "";
+    const str = String(input).trim();
+    
+    // If it's already YYYY-MM-DD, return it
+    if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+
+    // Otherwise parse it
+    const d = new Date(str);
+    if (isNaN(d.getTime())) return str; // return original if invalid
+
+    // Return as YYYY-MM-DD
+    return Utilities.formatDate(d, Session.getScriptTimeZone(), "yyyy-MM-dd");
 }

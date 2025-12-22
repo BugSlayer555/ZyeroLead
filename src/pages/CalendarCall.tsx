@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -82,24 +82,38 @@ export default function CalendarCall() {
     const [bookedSlots, setBookedSlots] = useState<string[]>([]);
     const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
+    // Store user's session bookings locally to prevent "disappearing" on nav
+    // format: "yyyy-MM-dd": ["10:00 AM", "11:00 AM"]
+    const sessionBookedSlots = useRef<Record<string, string[]>>({});
+
     // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzb9AGxRcdOg2DOIqUQOt2e4i46EcALFh7b4RBDeofgwuMYvQhN4Ce4YOCIHtzvAq6q/exec";
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfoanV0ZAhs8esVGtci22cMRlCuY2DvYiVrPg7DbV14lnyhXs8pIed3DYEkCY_U15hNw/exec";
 
     useEffect(() => {
         if (date) {
             const fetchBookings = async () => {
                 setIsLoadingSlots(true);
-                setBookedSlots([]); // Reset while fetching
+                setBookedSlots([]); // Reset to strict empty initially
+
+                const dateStr = format(date, "yyyy-MM-dd");
+
+                // 1. Get local persistent bookings for this date (optimistic)
+                const localForDate = sessionBookedSlots.current[dateStr] || [];
+                setBookedSlots([...localForDate]);
+
                 try {
-                    const dateStr = format(date, "yyyy-MM-dd");
+                    console.log("Fetching slots for:", dateStr); // DEBUG
                     const response = await fetch(`${GOOGLE_SCRIPT_URL}?date=${dateStr}`);
                     const data = await response.json();
+
+                    console.log("Backend returned:", data); // DEBUG
+
                     if (data.bookedTimes && Array.isArray(data.bookedTimes)) {
-                        setBookedSlots(data.bookedTimes);
+                        // Merge server data with local data unique set
+                        setBookedSlots(prev => Array.from(new Set([...prev, ...data.bookedTimes])));
                     }
                 } catch (error) {
                     console.error("Failed to fetch slots", error);
-                    // Optionally show toast, but silent fail usually better for UX here (just shows all open)
                 } finally {
                     setIsLoadingSlots(false);
                 }
@@ -131,29 +145,30 @@ export default function CalendarCall() {
             // 2. Send to Google Apps Script
             const response = await fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST",
-                mode: "no-cors",
+                mode: "cors", // Changed to CORS to read the error message
                 headers: {
-                    "Content-Type": "text/plain", // 'text/plain' avoids preflight OPTIONS check issue in some CORS setups
+                    "Content-Type": "text/plain",
                 },
                 body: JSON.stringify(payload),
             });
 
-            // Note: 'no-cors' mode returns an opaque response, so we can't read status/json.
-            // If we want to read the "Slot taken" error, we MUST use CORS.
-            // Standard GAS Web Apps support CORS if you return the right headers (ContentService does this automatically).
-            // So we try standard fetch first.
+            const data = await response.json();
 
-            // HOWEVER, the standard reliable way with GAS is often 'no-cors' for simple forms.
-            // If we want to check double-booking server-side, we ideally need to read the response.
-            // If we can't read the response due to CORS, we verify via the GET beforehand (optimistic).
-
-            // Let's assume the GET check handled 99% of cases.
-            // For robust 'no-cors' POST, we just assume success if no network error.
+            if (data.status === "error") {
+                throw new Error(data.message || "Unknown backend error");
+            }
 
             // 3. Handle Success
             setIsSubmitting(false);
             setIsSuccess(true);
-            setBookedSlots(prev => [...prev, selectedTime!]); // Optimistically update local state
+
+            // Optimistically update local state AND session cache
+            if (date && selectedTime) {
+                const dateStr = format(date, "yyyy-MM-dd");
+                const current = sessionBookedSlots.current[dateStr] || [];
+                sessionBookedSlots.current[dateStr] = [...current, selectedTime];
+                setBookedSlots(prev => [...prev, selectedTime]);
+            }
 
             toast({
                 title: "Booking Confirmed!",
@@ -163,9 +178,10 @@ export default function CalendarCall() {
         } catch (error) {
             console.error("Booking caught error:", error);
             setIsSubmitting(false);
+            // Show the ACTUAL error message from Google Script
             toast({
                 title: "Submission Error",
-                description: "Please try again or contact us directly.",
+                description: error instanceof Error ? error.message : "Please check your script permissions.",
                 variant: "destructive",
             });
         }
