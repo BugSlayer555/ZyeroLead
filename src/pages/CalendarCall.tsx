@@ -87,6 +87,7 @@ export default function CalendarCall() {
     const sessionBookedSlots = useRef<Record<string, string[]>>({});
 
     // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL
+    // Unified script URL
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfoanV0ZAhs8esVGtci22cMRlCuY2DvYiVrPg7DbV14lnyhXs8pIed3DYEkCY_U15hNw/exec";
 
     useEffect(() => {
@@ -239,34 +240,33 @@ export default function CalendarCall() {
                                                         <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
                                                         Checking availability...
                                                     </div>
-                                                ) : timeSlots.map((time) => {
-                                                    const isTaken = bookedSlots.includes(time);
-                                                    return (
-                                                        <Button
-                                                            key={time}
-                                                            variant={selectedTime === time ? "default" : "outline"}
-                                                            size="sm"
-                                                            disabled={isTaken}
-                                                            className={cn(
-                                                                "w-full justify-start text-xs",
-                                                                selectedTime === time && "bg-primary text-primary-foreground",
-                                                                isTaken && "opacity-50 cursor-not-allowed decoration-slice"
-                                                            )}
-                                                            onClick={() => !isTaken && setSelectedTime(time)}
-                                                        >
-                                                            {isTaken ? (
-                                                                <span className="text-muted-foreground/60 strike-through line-through flex items-center w-full">
-                                                                    {time}
-                                                                </span>
-                                                            ) : (
-                                                                <>
+                                                ) : (
+                                                    <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
+                                                        {timeSlots.map((time) => {
+                                                            const normalizeTime = (t: string) => t.trim().toLowerCase().replace(/^0/, '').replace(/\s+/g, '');
+                                                            const isTaken = bookedSlots.some(s => normalizeTime(s) === normalizeTime(time));
+
+                                                            // HIDE THE SLOT IF IT IS TAKEN (at user's request)
+                                                            if (isTaken) return null;
+
+                                                            return (
+                                                                <Button
+                                                                    key={time}
+                                                                    variant={selectedTime === time ? "default" : "outline"}
+                                                                    size="sm"
+                                                                    className={cn(
+                                                                        "w-full justify-start text-xs",
+                                                                        selectedTime === time && "bg-primary text-primary-foreground"
+                                                                    )}
+                                                                    onClick={() => setSelectedTime(time)}
+                                                                >
                                                                     <Clock className="w-3 h-3 mr-2" />
                                                                     {time}
-                                                                </>
-                                                            )}
-                                                        </Button>
-                                                    );
-                                                })}
+                                                                </Button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <Button

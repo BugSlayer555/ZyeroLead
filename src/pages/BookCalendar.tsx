@@ -96,14 +96,25 @@ export default function BookCalendar() {
                 setBookedSlots([...localForDate]);
 
                 try {
-                    const response = await fetch(`${GOOGLE_SCRIPT_URL}?date=${dateStr}`);
+                    // Cache busting with timestamp
+                    const response = await fetch(`${GOOGLE_SCRIPT_URL}?date=${dateStr}&_=${Date.now()}`);
+                    if (!response.ok) throw new Error("Network error while checking slots");
                     const data = await response.json();
 
                     if (data.bookedTimes && Array.isArray(data.bookedTimes)) {
-                        setBookedSlots(prev => Array.from(new Set([...prev, ...data.bookedTimes])));
+                        console.log(`Live Sync (${dateStr}): Blocks found:`, data.bookedTimes);
+                        // Prefer server data, only merge session local data for the current date
+                        const localForDate = sessionBookedSlots.current[dateStr] || [];
+                        const combined = Array.from(new Set([...localForDate, ...data.bookedTimes]));
+                        setBookedSlots(combined);
                     }
                 } catch (error) {
                     console.error("Failed to fetch slots", error);
+                    toast({
+                        title: "Availability Sync Error",
+                        description: "Could not fetch current availability. Please refresh.",
+                        variant: "destructive"
+                    });
                 } finally {
                     setIsLoadingSlots(false);
                 }
@@ -215,40 +226,45 @@ export default function BookCalendar() {
                                         </div>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-2 gap-3 min-h-[200px] content-start">
                                         {isLoadingSlots ? (
                                             <div className="col-span-2 text-center py-12 text-muted-foreground bg-muted/20 rounded-xl border border-dashed border-border">
                                                 <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
-                                                <p className="text-sm">Checking slots...</p>
+                                                <p className="text-sm">Syncing Live Slots...</p>
                                             </div>
-                                        ) : timeSlots.map((time) => {
-                                            const isTaken = bookedSlots.includes(time);
-                                            return (
-                                                <Button
-                                                    key={time}
-                                                    variant={selectedTime === time ? "default" : "outline"}
-                                                    size="lg"
-                                                    disabled={isTaken}
-                                                    className={cn(
-                                                        "w-full justify-start font-medium transition-all duration-300",
-                                                        selectedTime === time && "ring-2 ring-primary ring-offset-2",
-                                                        isTaken && "opacity-40 cursor-not-allowed bg-muted"
-                                                    )}
-                                                    onClick={() => !isTaken && setSelectedTime(time)}
-                                                >
-                                                    {isTaken ? (
-                                                        <span className="flex items-center gap-2 line-through text-muted-foreground w-full justify-between">
-                                                            {time}
-                                                        </span>
-                                                    ) : (
-                                                        <>
+                                        ) : (
+                                            <>
+                                                {timeSlots.map((time) => {
+                                                    const normalizeTime = (t: string) => t.trim().toLowerCase().replace(/^0/, '').replace(/\s+/g, '');
+                                                    const isTaken = bookedSlots.some(s => normalizeTime(s) === normalizeTime(time));
+
+                                                    // HIDE THE SLOT IF IT IS TAKEN (at user's request)
+                                                    if (isTaken) return null;
+
+                                                    return (
+                                                        <Button
+                                                            key={time}
+                                                            variant={selectedTime === time ? "default" : "outline"}
+                                                            size="lg"
+                                                            className={cn(
+                                                                "w-full justify-start font-bold transition-all duration-300 h-12",
+                                                                selectedTime === time && "ring-2 ring-primary ring-offset-2 scale-105"
+                                                            )}
+                                                            onClick={() => setSelectedTime(time)}
+                                                        >
                                                             <Clock className={cn("w-4 h-4 mr-2", selectedTime === time ? "text-primary-foreground" : "text-primary")} />
                                                             {time}
-                                                        </>
-                                                    )}
-                                                </Button>
-                                            );
-                                        })}
+                                                        </Button>
+                                                    );
+                                                })}
+                                                {timeSlots.every(t => bookedSlots.some(s => t.trim().toLowerCase().replace(/^0/, '').replace(/\s+/g, '') === s.trim().toLowerCase().replace(/^0/, '').replace(/\s+/g, ''))) && (
+                                                    <div className="col-span-2 text-center py-8 text-muted-foreground bg-orange-50/50 rounded-xl border border-orange-100">
+                                                        <p className="font-bold text-orange-600">No Slots Available</p>
+                                                        <p className="text-xs">All timings are currently blocked or booked.</p>
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
                                     </div>
                                 </div>
 

@@ -144,6 +144,31 @@ export default function BookCall() {
     }
   };
 
+  const [bookedSlots, setBookedSlots] = useState<string[]>([]);
+  const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+
+  // Unified script URL
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfoanV0ZAhs8esVGtci22cMRlCuY2DvYiVrPg7DbV14lnyhXs8pIed3DYEkCY_U15hNw/exec";
+
+  useEffect(() => {
+    if (date) {
+      const fetchAvailability = async () => {
+        setIsLoadingSlots(true);
+        const dateStr = format(date, "yyyy-MM-dd");
+        try {
+          const response = await fetch(`${GOOGLE_SCRIPT_URL}?date=${dateStr}`);
+          const data = await response.json();
+          if (data.bookedTimes) setBookedSlots(data.bookedTimes);
+        } catch (error) {
+          console.error("Fetch availability error:", error);
+        } finally {
+          setIsLoadingSlots(false);
+        }
+      };
+      fetchAvailability();
+    }
+  }, [date]);
+
   const handleClose = () => {
     setIsDialogOpen(false);
     setIsSuccess(false);
@@ -289,21 +314,34 @@ export default function BookCall() {
                       Available Times
                     </p>
                     <div className="grid grid-cols-2 md:grid-cols-1 gap-2">
-                      {timeSlots.map((time) => (
-                        <Button
-                          key={time}
-                          variant={selectedTime === time ? "default" : "outline"}
-                          size="sm"
-                          className={cn(
-                            "w-full justify-start text-xs",
-                            selectedTime === time && "bg-primary text-primary-foreground"
-                          )}
-                          onClick={() => setSelectedTime(time)}
-                        >
-                          <Clock className="w-3 h-3 mr-2" />
-                          {time}
-                        </Button>
-                      ))}
+                      {isLoadingSlots ? (
+                        <div className="col-span-2 text-center py-4 text-muted-foreground animate-pulse">
+                          Syncing slots...
+                        </div>
+                      ) : (
+                        timeSlots.map((time) => {
+                          const normalizeTime = (t: string) => t.trim().toLowerCase().replace(/^0/, '').replace(/\s+/g, '');
+                          const isTaken = bookedSlots.some(s => normalizeTime(s) === normalizeTime(time));
+
+                          if (isTaken) return null;
+
+                          return (
+                            <Button
+                              key={time}
+                              variant={selectedTime === time ? "default" : "outline"}
+                              size="sm"
+                              className={cn(
+                                "w-full justify-start text-xs",
+                                selectedTime === time && "bg-primary text-primary-foreground"
+                              )}
+                              onClick={() => setSelectedTime(time)}
+                            >
+                              <Clock className="w-3 h-3 mr-2" />
+                              {time}
+                            </Button>
+                          );
+                        })
+                      )}
                     </div>
                   </div>
                 )}

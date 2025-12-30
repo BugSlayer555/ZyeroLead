@@ -11,8 +11,6 @@ import CaseStudies from "./pages/CaseStudies";
 import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
-import BookCall from "./pages/BookCall";
-import CalendarCall from "./pages/CalendarCall";
 import Admin from "./pages/Admin";
 import BookCalendar from "./pages/BookCalendar";
 import NotFound from "./pages/NotFound";
@@ -34,8 +32,8 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
-          <Route path="/book-call" element={<BookCall />} />
-          <Route path="/calendar-call" element={<CalendarCall />} />
+          <Route path="/book-call" element={<BookCalendar />} />
+          <Route path="/calendar-call" element={<BookCalendar />} />
           <Route path="/book-calendar" element={<BookCalendar />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
