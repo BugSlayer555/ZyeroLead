@@ -9,7 +9,6 @@ const navLinks = [
   { name: "About", href: "/about" },
   { name: "Services", href: "/services" },
   { name: "Case Studies", href: "/case-studies" },
-  { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact" },
 ];
 
@@ -43,9 +42,6 @@ export function Navbar() {
         <div className="container mx-auto px-4 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-              <span className="text-primary-foreground font-black text-lg">Z</span>
-            </div>
             <span className="text-xl font-bold tracking-tight">
               Zyero<span className="text-primary">Lead</span>
             </span>
