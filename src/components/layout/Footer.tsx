@@ -5,10 +5,8 @@ const quickLinks = [
   { name: "About Us", href: "/about" },
   { name: "Services", href: "/services" },
   { name: "Case Studies", href: "/case-studies" },
-  { name: "Blog", href: "/blog" },
   { name: "Contact", href: "/contact" },
   { name: "Book Strategy Call", href: "/calendar-call" },
-  { name: "Book Calendar", href: "/book-calendar" },
 ];
 
 const services = [
@@ -34,9 +32,6 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center">
-                <span className="text-primary-foreground font-black text-lg">Z</span>
-              </div>
               <span className="text-xl font-bold tracking-tight">
                 Zyero<span className="text-primary">Lead</span>
               </span>

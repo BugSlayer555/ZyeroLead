@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -92,8 +92,8 @@ export default function BookCall() {
     setStep(2);
   };
 
-  // REPLACE THIS WITH YOUR DEPLOYED GOOGLE APPS SCRIPT URL
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzb9AGxRcdOg2DOIqUQOt2e4i46EcALFh7b4RBDeofgwuMYvQhN4Ce4YOCIHtzvAq6q/exec";
+  // Google Apps Script URL for booking
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfoanV0ZAhs8esVGtci22cMRlCuY2DvYiVrPg7DbV14lnyhXs8pIed3DYEkCY_U15hNw/exec";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -147,8 +147,6 @@ export default function BookCall() {
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
   const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
-  // Unified script URL
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxfoanV0ZAhs8esVGtci22cMRlCuY2DvYiVrPg7DbV14lnyhXs8pIed3DYEkCY_U15hNw/exec";
 
   useEffect(() => {
     if (date) {
